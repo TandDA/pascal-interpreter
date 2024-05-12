@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	intpr := NewInterpreter(" 99 +      9 ")
+	intpr := NewInterpreter(" 99 +      9 - 9")
 	fmt.Println(intpr.Expr())
 }
 
@@ -15,6 +15,7 @@ const (
 	INTEGER = "INTEGER"
 	PLUS    = "PLUS"
 	MINUS   = "MINUS"
+	MULTIP  = "MULTIP"
 	EOF     = "EOF"
 )
 
@@ -76,6 +77,10 @@ func (i *Interpreter) getNextToken() Token {
 			i.advance()
 			return Token{MINUS, '-'}
 		}
+		if i.CurrentChar == '*' {
+			i.advance()
+			return Token{MULTIP, '*'}
+		}
 		panic("Invalid token")
 	}
 	return Token{EOF, nil}
@@ -95,20 +100,31 @@ func (i *Interpreter) Expr() int {
 	left := i.CurrentToken.Val.(int)
 	i.eat(INTEGER)
 
-	var plus bool
+	var op string = "-"
 	if i.CurrentToken.Type == PLUS {
-		plus = true
+		op = "+"
 		i.eat(PLUS)
-	} else {
-		i.eat(MINUS)
+	} else if i.CurrentToken.Type == MULTIP {
+		op = "*"
+		i.eat(MULTIP)
 	}
 
 	right := i.CurrentToken.Val.(int)
 	i.eat(INTEGER)
 
-	if plus {
-		return left + right
+	var result int
+
+	if op == "+" {
+		result = left + right
+	} else if op == "-" {
+		result = left - right
 	} else {
-		return left - right
+		result = left * right
+	}
+
+	if i.CurrentToken.Type == EOF {
+		return result
+	} else {
+		return NewInterpreter(string(result) + i.Text[i.Pos:]).Expr()
 	}
 }
