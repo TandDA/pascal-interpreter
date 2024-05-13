@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	intpr := NewInterpreter(" 99 +      9 - 9")
+	intpr := NewInterpreter(" 99 * 2")
 	fmt.Println(intpr.Expr())
 }
 
@@ -99,32 +99,33 @@ func (i *Interpreter) Expr() int {
 
 	left := i.CurrentToken.Val.(int)
 	i.eat(INTEGER)
-
-	var op string = "-"
-	if i.CurrentToken.Type == PLUS {
-		op = "+"
-		i.eat(PLUS)
-	} else if i.CurrentToken.Type == MULTIP {
-		op = "*"
-		i.eat(MULTIP)
-	}
-
-	right := i.CurrentToken.Val.(int)
-	i.eat(INTEGER)
-
 	var result int
 
-	if op == "+" {
-		result = left + right
-	} else if op == "-" {
-		result = left - right
-	} else {
-		result = left * right
-	}
+	for i.CurrentToken.Type != EOF {
+		var op string
+		if i.CurrentToken.Type == PLUS {
+			op = "+"
+			i.eat(PLUS)
+		} else if i.CurrentToken.Type == MULTIP {
+			op = "*"
+			i.eat(MULTIP)
+		} else if i.CurrentToken.Type == MINUS {
+			op = "-"
+			i.eat(MINUS)
+		}
 
-	if i.CurrentToken.Type == EOF {
-		return result
-	} else {
-		return NewInterpreter(string(result) + i.Text[i.Pos:]).Expr()
+		right := i.CurrentToken.Val.(int)
+		i.eat(INTEGER)
+
+		if op == "+" {
+			result = left + right
+		} else if op == "-" {
+			result = left - right
+		} else {
+			result = left * right
+		}
+
+		left = result
 	}
+	return result
 }
