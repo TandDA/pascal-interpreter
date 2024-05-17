@@ -2,12 +2,11 @@ package main
 
 import (
 	"fmt"
-	"strconv"
-	"unicode"
 )
 
 func main() {
-	intpr := NewInterpreter(" 99 * 2")
+	lexer := NewLexer(" 99 * 2   - 198 * 2")
+	intpr := NewInterpreter(lexer)
 	fmt.Println(intpr.Expr())
 }
 
@@ -25,107 +24,43 @@ type Token struct {
 }
 
 type Interpreter struct {
-	Text         string
-	Pos          int
+	Lexer        *Lexer
 	CurrentToken Token
-	CurrentChar  rune
 }
 
-func NewInterpreter(text string) *Interpreter {
-	return &Interpreter{Text: text, CurrentChar: rune(text[0])}
-}
-
-func (i *Interpreter) advance() {
-	i.Pos += 1
-	if i.Pos >= len(i.Text) {
-		i.CurrentChar = 0
-	} else {
-		i.CurrentChar = rune(i.Text[i.Pos])
-	}
-}
-
-func (i *Interpreter) skipWhitespace() {
-	for i.CurrentChar == ' ' {
-		i.advance()
-	}
-}
-
-func (i *Interpreter) integer() int {
-	num := ""
-	for unicode.IsDigit(i.CurrentChar) {
-		num += string(i.CurrentChar)
-		i.advance()
-	}
-	ans, _ := strconv.Atoi(num)
-	return ans
-}
-
-func (i *Interpreter) getNextToken() Token {
-	for i.CurrentChar != 0 {
-		if i.CurrentChar == ' ' {
-			i.skipWhitespace()
-			continue
-		}
-		if unicode.IsDigit(i.CurrentChar) {
-			return Token{INTEGER, i.integer()}
-		}
-		if i.CurrentChar == '+' {
-			i.advance()
-			return Token{PLUS, '+'}
-		}
-		if i.CurrentChar == '-' {
-			i.advance()
-			return Token{MINUS, '-'}
-		}
-		if i.CurrentChar == '*' {
-			i.advance()
-			return Token{MULTIP, '*'}
-		}
-		panic("Invalid token")
-	}
-	return Token{EOF, nil}
+func NewInterpreter(lexer *Lexer) *Interpreter {
+	return &Interpreter{Lexer: lexer, CurrentToken: lexer.getNextToken()}
 }
 
 func (i *Interpreter) eat(_type string) {
 	if i.CurrentToken.Type == _type {
-		i.CurrentToken = i.getNextToken()
+		i.CurrentToken = i.Lexer.getNextToken()
 	} else {
 		panic("eat Type do not equal to current token type")
 	}
 }
 
-func (i *Interpreter) Expr() int {
-	i.CurrentToken = i.getNextToken()
-
-	left := i.CurrentToken.Val.(int)
+func (i *Interpreter) factor() int {
+	token := i.CurrentToken
 	i.eat(INTEGER)
-	var result int
+	return token.Val.(int)
+}
+
+func (i *Interpreter) Expr() int {
+
+	result := i.factor()
 
 	for i.CurrentToken.Type != EOF {
-		var op string
 		if i.CurrentToken.Type == PLUS {
-			op = "+"
 			i.eat(PLUS)
+			result += i.factor()
 		} else if i.CurrentToken.Type == MULTIP {
-			op = "*"
 			i.eat(MULTIP)
+			result *= i.factor()
 		} else if i.CurrentToken.Type == MINUS {
-			op = "-"
 			i.eat(MINUS)
+			result -= i.factor()
 		}
-
-		right := i.CurrentToken.Val.(int)
-		i.eat(INTEGER)
-
-		if op == "+" {
-			result = left + right
-		} else if op == "-" {
-			result = left - right
-		} else {
-			result = left * right
-		}
-
-		left = result
 	}
 	return result
 }
