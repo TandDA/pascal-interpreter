@@ -61,6 +61,10 @@ func (i *Lexer) getNextToken() Token {
 			i.advance()
 			return Token{MULTIP, '*'}
 		}
+		if i.CurrentChar == '/' {
+			i.advance()
+			return Token{DIV, '/'}
+		}
 		panic("Invalid token")
 	}
 	return Token{EOF, nil}

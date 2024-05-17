@@ -5,7 +5,7 @@ import (
 )
 
 func main() {
-	lexer := NewLexer(" 99 * 2   - 198 * 2")
+	lexer := NewLexer("1 + 10 / 5 * 2")
 	intpr := NewInterpreter(lexer)
 	fmt.Println(intpr.Expr())
 }
@@ -16,6 +16,7 @@ const (
 	MINUS   = "MINUS"
 	MULTIP  = "MULTIP"
 	EOF     = "EOF"
+	DIV     = "DIV"
 )
 
 type Token struct {
@@ -48,19 +49,22 @@ func (i *Interpreter) factor() int {
 
 func (i *Interpreter) Expr() int {
 
-	result := i.factor()
+	result := NewCalcTree(i.factor())
 
 	for i.CurrentToken.Type != EOF {
 		if i.CurrentToken.Type == PLUS {
 			i.eat(PLUS)
-			result += i.factor()
+			result.addOperation(PLUS, i.factor())
 		} else if i.CurrentToken.Type == MULTIP {
 			i.eat(MULTIP)
-			result *= i.factor()
+			result.addOperation(MULTIP, i.factor())
 		} else if i.CurrentToken.Type == MINUS {
 			i.eat(MINUS)
-			result -= i.factor()
+			result.addOperation(MINUS, i.factor())
+		} else if i.CurrentToken.Type == DIV {
+			i.eat(DIV)
+			result.addOperation(DIV, i.factor())
 		}
 	}
-	return result
+	return result.calc()
 }
