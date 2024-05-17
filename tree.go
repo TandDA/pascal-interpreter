@@ -8,37 +8,29 @@ type TreeNode struct {
 }
 
 type CalcTree struct {
-	head    *TreeNode
-	current *TreeNode
+	head *TreeNode
 }
 
 func NewCalcTree(num int) *CalcTree {
 	node := &TreeNode{val: num}
-	return &CalcTree{
-		head:    node,
-		current: node,
-	}
+	return &CalcTree{head: node}
 }
 
 func (t *CalcTree) addOperation(_type string, num int) {
 	switch _type {
 	case MINUS, PLUS:
-		newCurr := &TreeNode{val: num}
-		newHead := &TreeNode{op: _type, left: t.head, right: newCurr}
+		newRight := &TreeNode{val: num}
+		newHead := &TreeNode{op: _type, left: t.head, right: newRight}
 		t.head = newHead
-		t.current = newCurr
 	case MULTIP, DIV:
-		newCurr := &TreeNode{val: num}
-		newLeft := &TreeNode{val: t.current.val}
-		t.current.op = _type
-		t.current.left = newLeft
-		t.current.right = newCurr
-		t.current = newCurr
+		newRightNum := &TreeNode{val: num}
+		newRightOp := &TreeNode{op: _type, left: t.head.right, right: newRightNum}
+		t.head.right = newRightOp
 	}
 }
 
 func (t *CalcTree) calc() int {
-	
+
 	var f func(node *TreeNode) int
 	f = func(node *TreeNode) int {
 		if node.left == nil {

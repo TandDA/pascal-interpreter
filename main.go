@@ -5,7 +5,7 @@ import (
 )
 
 func main() {
-	lexer := NewLexer("1 + 10 / 5 * 2")
+	lexer := NewLexer("1 + 10/5*2 + 5 / 5 * 4")
 	intpr := NewInterpreter(lexer)
 	fmt.Println(intpr.Expr())
 }
