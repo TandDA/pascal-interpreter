@@ -5,67 +5,78 @@ import (
 	"unicode"
 )
 
+const (
+	MINUS   = "MINUS"
+	PLUS    = "PLUS"
+	DIV     = "DIV"
+	MUL     = "MUL"
+	INTEGER = "INTEGER"
+	EOF     = "EOF"
+)
+
+type Token struct {
+	_type string
+	val   any
+}
+
 type Lexer struct {
-	Text        string
-	Pos         int
-	CurrentChar rune
+	pos         int
+	currentChar rune
+	text        string
 }
 
 func NewLexer(text string) *Lexer {
-	return &Lexer{Text: text, CurrentChar: rune(text[0])}
+	return &Lexer{text: text, currentChar: rune(text[0])}
 }
 
-func (i *Lexer) advance() {
-	i.Pos += 1
-	if i.Pos >= len(i.Text) {
-		i.CurrentChar = 0
-	} else {
-		i.CurrentChar = rune(i.Text[i.Pos])
+func (l *Lexer) advance() {
+	l.pos++
+	if l.pos >= len(l.text) {
+		l.currentChar = 0
+		return
 	}
+	l.currentChar = rune(l.text[l.pos])
 }
 
-func (i *Lexer) skipWhitespace() {
-	for i.CurrentChar == ' ' {
-		i.advance()
+func (l *Lexer) integer() int {
+	temp := ""
+	for unicode.IsDigit(l.currentChar) {
+		temp += string(l.currentChar)
+		l.advance()
 	}
+	res, _ := strconv.Atoi(temp)
+	return res
+
 }
 
-func (i *Lexer) integer() int {
-	num := ""
-	for unicode.IsDigit(i.CurrentChar) {
-		num += string(i.CurrentChar)
-		i.advance()
-	}
-	ans, _ := strconv.Atoi(num)
-	return ans
-}
-
-func (i *Lexer) getNextToken() Token {
-	for i.CurrentChar != 0 {
-		if i.CurrentChar == ' ' {
-			i.skipWhitespace()
+func (l *Lexer) getNextToken() Token {
+	for l.currentChar != 0 {
+		if l.currentChar == ' ' {
+			for l.currentChar == ' ' {
+				l.advance()
+			}
 			continue
 		}
-		if unicode.IsDigit(i.CurrentChar) {
-			return Token{INTEGER, i.integer()}
+		if unicode.IsDigit(l.currentChar) {
+			return Token{INTEGER, l.integer()}
 		}
-		if i.CurrentChar == '+' {
-			i.advance()
-			return Token{PLUS, '+'}
-		}
-		if i.CurrentChar == '-' {
-			i.advance()
+		if l.currentChar == '-' {
+			l.advance()
 			return Token{MINUS, '-'}
 		}
-		if i.CurrentChar == '*' {
-			i.advance()
-			return Token{MULTIP, '*'}
+		if l.currentChar == '+' {
+			l.advance()
+			return Token{PLUS, '+'}
 		}
-		if i.CurrentChar == '/' {
-			i.advance()
+		if l.currentChar == '*' {
+			l.advance()
+			return Token{MUL, '*'}
+		}
+		if l.currentChar == '/' {
+			l.advance()
 			return Token{DIV, '/'}
 		}
-		panic("Invalid token")
+		panic("Token recognize error")
 	}
 	return Token{EOF, nil}
 }

@@ -22,7 +22,7 @@ func (t *CalcTree) addOperation(_type string, num int) {
 		newRight := &TreeNode{val: num}
 		newHead := &TreeNode{op: _type, left: t.head, right: newRight}
 		t.head = newHead
-	case MULTIP, DIV:
+	case MUL, DIV:
 		newRightNum := &TreeNode{val: num}
 		newRightOp := &TreeNode{op: _type, left: t.head.right, right: newRightNum}
 		t.head.right = newRightOp
@@ -37,7 +37,7 @@ func (t *CalcTree) calc() int {
 			return node.val
 		}
 		switch node.op {
-		case MULTIP:
+		case MUL:
 			return f(node.left) * f(node.right)
 		case DIV:
 			return f(node.left) / f(node.right)
