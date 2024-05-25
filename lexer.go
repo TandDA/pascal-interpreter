@@ -6,10 +6,12 @@ import (
 )
 
 const (
-	MINUS   = "MINUS"
 	PLUS    = "PLUS"
+	MINUS   = "MINUS"
 	DIV     = "DIV"
 	MUL     = "MUL"
+	LPAREN  = "LPAREN"
+	RPAREN  = "RPAREN"
 	INTEGER = "INTEGER"
 	EOF     = "EOF"
 )
@@ -20,9 +22,9 @@ type Token struct {
 }
 
 type Lexer struct {
+	text        string
 	pos         int
 	currentChar rune
-	text        string
 }
 
 func NewLexer(text string) *Lexer {
@@ -41,12 +43,11 @@ func (l *Lexer) advance() {
 func (l *Lexer) integer() int {
 	temp := ""
 	for unicode.IsDigit(l.currentChar) {
-		temp += string(l.currentChar)
+		temp+= string(l.currentChar)
 		l.advance()
 	}
 	res, _ := strconv.Atoi(temp)
 	return res
-
 }
 
 func (l *Lexer) getNextToken() Token {
@@ -60,23 +61,27 @@ func (l *Lexer) getNextToken() Token {
 		if unicode.IsDigit(l.currentChar) {
 			return Token{INTEGER, l.integer()}
 		}
-		if l.currentChar == '-' {
+		switch l.currentChar {
+		case '-':
 			l.advance()
-			return Token{MINUS, '-'}
-		}
-		if l.currentChar == '+' {
+			return Token{MINUS, "-"}
+		case '+':
 			l.advance()
-			return Token{PLUS, '+'}
-		}
-		if l.currentChar == '*' {
+			return Token{PLUS, "+"}
+		case '*':
 			l.advance()
-			return Token{MUL, '*'}
-		}
-		if l.currentChar == '/' {
+			return Token{MUL, "*"}
+		case '/':
 			l.advance()
-			return Token{DIV, '/'}
+			return Token{DIV, "/"}
+		case '(':
+			l.advance()
+			return Token{LPAREN, "("}
+		case ')':
+			l.advance()
+			return Token{RPAREN, ")"}
 		}
-		panic("Token recognize error")
+		panic("Unrecognized token")
 	}
 	return Token{EOF, nil}
 }

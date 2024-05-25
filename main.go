@@ -3,7 +3,7 @@ package main
 import "fmt"
 
 func main() {
-	lexer := NewLexer("8 + 2 * 3  - 7 * 2 * 3          ")
-	intr := NewInerpreter(lexer)
+	lexer := NewLexer("7 + 3 * (10 / (12 / (3 + 1) - 1)) / (2 + 3) - 5 - 3 + (8)")
+	intr := NewInterpreter(lexer)
 	fmt.Println(intr.expr())
 }
