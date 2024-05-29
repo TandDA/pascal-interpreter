@@ -1,38 +1,38 @@
 package main
 
-type TreeNode struct {
+type OldTreeNode struct {
 	val   int
 	op    string
-	left  *TreeNode
-	right *TreeNode
+	left  *OldTreeNode
+	right *OldTreeNode
 }
 
-type CalcTree struct {
-	head *TreeNode
+type AST struct {
+	head *OldTreeNode
 }
 
-func NewCalcTree(num int) *CalcTree {
-	node := &TreeNode{val: num}
-	return &CalcTree{head: node}
+func NewAST(num int) *AST {
+	node := &OldTreeNode{val: num}
+	return &AST{head: node}
 }
 
-func (t *CalcTree) addOperation(_type string, num int) {
+func (t *AST) addOperation(_type string, num int) {
 	switch _type {
 	case MINUS, PLUS:
-		newRight := &TreeNode{val: num}
-		newHead := &TreeNode{op: _type, left: t.head, right: newRight}
+		newRight := &OldTreeNode{val: num}
+		newHead := &OldTreeNode{op: _type, left: t.head, right: newRight}
 		t.head = newHead
 	case MUL, DIV:
-		newRightNum := &TreeNode{val: num}
-		newRightOp := &TreeNode{op: _type, left: t.head.right, right: newRightNum}
+		newRightNum := &OldTreeNode{val: num}
+		newRightOp := &OldTreeNode{op: _type, left: t.head.right, right: newRightNum}
 		t.head.right = newRightOp
 	}
 }
 
-func (t *CalcTree) calc() int {
+func (t *AST) calc() int {
 
-	var f func(node *TreeNode) int
-	f = func(node *TreeNode) int {
+	var f func(node *OldTreeNode) int
+	f = func(node *OldTreeNode) int {
 		if node.left == nil {
 			return node.val
 		}

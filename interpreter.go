@@ -1,65 +1,32 @@
 package main
 
 type Interpreter struct {
-	l            *Lexer
-	currentToken Token
+	parser *Parser
 }
 
-func NewInterpreter(lxr *Lexer) *Interpreter {
-	return &Interpreter{l: lxr, currentToken: lxr.getNextToken()}
+func NewInterpreter(parser *Parser) *Interpreter {
+	return &Interpreter{parser: parser}
 }
 
-func (i *Interpreter) eat(_type string) {
-	if _type == i.currentToken._type {
-		i.currentToken = i.l.getNextToken()
-		return
-	}
-	panic("Syntax error")
-}
-
-func (i *Interpreter) factor() int {
-	if i.currentToken._type == INTEGER {
-		val := i.currentToken.val
-		i.eat(INTEGER)
-		return val.(int)
-	}
-	if i.currentToken._type == LPAREN {
-		i.eat(LPAREN)
-		result := i.expr()
-		i.eat(RPAREN)
-		return result
-	}
-	panic("Syntax error")
-}
-
-func (i *Interpreter) term() int {
-	result := i.factor()
-
-	for i.currentToken._type == MUL || i.currentToken._type == DIV {
-		if i.currentToken._type == MUL {
-			i.eat(MUL)
-			result *= i.factor()
+func (i *Interpreter) interpret() int {
+	var visit func(node *TreeNode) int
+	visit = func(node *TreeNode) int {
+		if node.left == nil {
+			return node.t.val.(int)
 		}
-		if i.currentToken._type == DIV {
-			i.eat(DIV)
-			result /= i.factor()
+		switch node.t._type {
+		case MUL:
+			return visit(node.left) * visit(node.right)
+		case DIV:
+			return visit(node.left) / visit(node.right)
+		case PLUS:
+			return visit(node.left) + visit(node.right)
+		case MINUS:
+			return visit(node.left) - visit(node.right)
 		}
+		return node.t.val.(int)
 	}
-	return result
-}
 
-func (i *Interpreter) expr() int {
-	result := i.term()
-
-	for i.currentToken._type == PLUS || i.currentToken._type == MINUS {
-		if i.currentToken._type == PLUS {
-			i.eat(PLUS)
-			result += i.term()
-		}
-		if i.currentToken._type == MINUS {
-			i.eat(MINUS)
-			result -= i.term()
-		}
-	}
-	return result
+	node := i.parser.expr()
+	return visit(node)
 }
