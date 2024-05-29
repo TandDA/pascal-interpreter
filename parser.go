@@ -1,7 +1,7 @@
 package main
 
 type TreeNode struct {
-	t Token
+	t     Token
 	left  *TreeNode
 	right *TreeNode
 }
@@ -27,7 +27,7 @@ func (i *Parser) factor() *TreeNode {
 	if i.currentToken._type == INTEGER {
 		tok := i.currentToken
 		i.eat(INTEGER)
-		return &TreeNode{t:tok}
+		return &TreeNode{t: tok}
 	}
 	if i.currentToken._type == LPAREN {
 		i.eat(LPAREN)
