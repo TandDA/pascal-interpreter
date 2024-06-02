@@ -20,8 +20,14 @@ func (i *Interpreter) interpret() int {
 		case DIV:
 			return visit(node.left) / visit(node.right)
 		case PLUS:
+			if node.right == nil {
+				return visit(node.left)
+			}
 			return visit(node.left) + visit(node.right)
 		case MINUS:
+			if node.right == nil {
+				return -1 * visit(node.left)
+			}
 			return visit(node.left) - visit(node.right)
 		}
 		return node.t.val.(int)

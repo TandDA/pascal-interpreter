@@ -24,6 +24,16 @@ func (i *Parser) eat(_type string) {
 }
 
 func (i *Parser) factor() *TreeNode {
+	if i.currentToken._type == PLUS {
+		tok := i.currentToken
+		i.eat(PLUS)
+		return &TreeNode{t: tok, left: i.factor()}
+	}
+	if i.currentToken._type == MINUS {
+		tok := i.currentToken
+		i.eat(MINUS)
+		return &TreeNode{t: tok, left: i.factor()}
+	}
 	if i.currentToken._type == INTEGER {
 		tok := i.currentToken
 		i.eat(INTEGER)
