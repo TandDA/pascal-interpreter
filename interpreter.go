@@ -34,3 +34,13 @@ func (nv *NodeVisitor) VisitBinOpNode(n *BinOpNode) any {
 func (nv *NodeVisitor) VisitNumNode(n *NumNode) any {
 	return n.token.val.(int)
 }
+
+func (nv *NodeVisitor) VisitUnaryOp(n *UnaryOpNode) any {
+	op := n.token._type
+	num := n.expr.Accept(nv).(int)
+	if op == MINUS {
+		return -num
+	} else {
+		return num
+	}
+}

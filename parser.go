@@ -24,16 +24,16 @@ func (i *Parser) eat(_type string) {
 }
 
 func (i *Parser) factor() TreeNode {
-	// if i.currentToken._type == PLUS {
-	// 	tok := i.currentToken
-	// 	i.eat(PLUS)
-	// 	return &OldTreeNode{t: tok, left: i.factor()}
-	// }
-	// if i.currentToken._type == MINUS {
-	// 	tok := i.currentToken
-	// 	i.eat(MINUS)
-	// 	return &OldTreeNode{t: tok, left: i.factor()}
-	// }
+	if i.currentToken._type == PLUS {
+		tok := i.currentToken
+		i.eat(PLUS)
+		return &UnaryOpNode{token: tok, expr: i.factor()}
+	}
+	if i.currentToken._type == MINUS {
+		tok := i.currentToken
+		i.eat(MINUS)
+		return &UnaryOpNode{token: tok, expr: i.factor()}
+	}
 	if i.currentToken._type == INTEGER {
 		tok := i.currentToken
 		i.eat(INTEGER)

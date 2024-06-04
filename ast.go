@@ -7,6 +7,7 @@ type TreeNode interface {
 type Visitor interface {
 	VisitBinOpNode(n *BinOpNode) any
 	VisitNumNode(n *NumNode) any
+	VisitUnaryOp(n *UnaryOpNode) any
 }
 
 type BinOpNode struct {
@@ -25,4 +26,13 @@ type NumNode struct {
 
 func (n *NumNode) Accept(visitor Visitor) any {
 	return visitor.VisitNumNode(n)
+}
+
+type UnaryOpNode struct {
+	token Token
+	expr  TreeNode
+}
+
+func (n *UnaryOpNode) Accept(visitor Visitor) any {
+	return visitor.VisitUnaryOp(n)
 }
