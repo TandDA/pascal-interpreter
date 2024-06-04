@@ -3,9 +3,9 @@ package main
 import "fmt"
 
 // reverse polish notation
-func RPN(node *TreeNode) string {
-	var f func(node *TreeNode) string
-	f = func(node *TreeNode) string {
+func RPN(node *OldTreeNode) string {
+	var f func(node *OldTreeNode) string
+	f = func(node *OldTreeNode) string {
 		if node.t._type == INTEGER {
 			return fmt.Sprint(node.t.val.(int))
 		}
@@ -15,9 +15,9 @@ func RPN(node *TreeNode) string {
 }
 
 // LISP notation
-func LISP(node *TreeNode) string {
-	var f func(node *TreeNode) string
-	f = func(node *TreeNode) string {
+func LISP(node *OldTreeNode) string {
+	var f func(node *OldTreeNode) string
+	f = func(node *OldTreeNode) string {
 		if node.t._type == INTEGER {
 			return fmt.Sprint(node.t.val.(int))
 		}

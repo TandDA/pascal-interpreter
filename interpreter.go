@@ -9,30 +9,28 @@ func NewInterpreter(parser *Parser) *Interpreter {
 }
 
 func (i *Interpreter) interpret() int {
-	var visit func(node *TreeNode) int
-	visit = func(node *TreeNode) int {
-		if node.left == nil {
-			return node.t.val.(int)
-		}
-		switch node.t._type {
-		case MUL:
-			return visit(node.left) * visit(node.right)
-		case DIV:
-			return visit(node.left) / visit(node.right)
-		case PLUS:
-			if node.right == nil {
-				return visit(node.left)
-			}
-			return visit(node.left) + visit(node.right)
-		case MINUS:
-			if node.right == nil {
-				return -1 * visit(node.left)
-			}
-			return visit(node.left) - visit(node.right)
-		}
-		return node.t.val.(int)
-	}
+	visitor := &NodeVisitor{}
+	return i.parser.expr().Accept(visitor).(int)
+}
 
-	node := i.parser.expr()
-	return visit(node)
+type NodeVisitor struct{}
+
+func (nv *NodeVisitor) VisitBinOpNode(n *BinOpNode) any {
+	l := n.left.Accept(nv).(int)
+	r := n.right.Accept(nv).(int)
+	switch n.token._type {
+	case MUL:
+		return l * r
+	case DIV:
+		return l / r
+	case PLUS:
+		return l + r
+	case MINUS:
+		return l - r
+	}
+	return nil
+}
+
+func (nv *NodeVisitor) VisitNumNode(n *NumNode) any {
+	return n.token.val.(int)
 }

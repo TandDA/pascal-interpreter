@@ -1,9 +1,9 @@
 package main
 
-type TreeNode struct {
+type OldTreeNode struct {
 	t     Token
-	left  *TreeNode
-	right *TreeNode
+	left  *OldTreeNode
+	right *OldTreeNode
 }
 
 type Parser struct {
@@ -23,21 +23,21 @@ func (i *Parser) eat(_type string) {
 	panic("Syntax error")
 }
 
-func (i *Parser) factor() *TreeNode {
-	if i.currentToken._type == PLUS {
-		tok := i.currentToken
-		i.eat(PLUS)
-		return &TreeNode{t: tok, left: i.factor()}
-	}
-	if i.currentToken._type == MINUS {
-		tok := i.currentToken
-		i.eat(MINUS)
-		return &TreeNode{t: tok, left: i.factor()}
-	}
+func (i *Parser) factor() TreeNode {
+	// if i.currentToken._type == PLUS {
+	// 	tok := i.currentToken
+	// 	i.eat(PLUS)
+	// 	return &OldTreeNode{t: tok, left: i.factor()}
+	// }
+	// if i.currentToken._type == MINUS {
+	// 	tok := i.currentToken
+	// 	i.eat(MINUS)
+	// 	return &OldTreeNode{t: tok, left: i.factor()}
+	// }
 	if i.currentToken._type == INTEGER {
 		tok := i.currentToken
 		i.eat(INTEGER)
-		return &TreeNode{t: tok}
+		return &NumNode{token: tok}
 	}
 	if i.currentToken._type == LPAREN {
 		i.eat(LPAREN)
@@ -48,7 +48,7 @@ func (i *Parser) factor() *TreeNode {
 	panic("Syntax error")
 }
 
-func (i *Parser) term() *TreeNode {
+func (i *Parser) term() TreeNode {
 	result := i.factor()
 
 	for i.currentToken._type == MUL || i.currentToken._type == DIV {
@@ -59,12 +59,12 @@ func (i *Parser) term() *TreeNode {
 		if i.currentToken._type == DIV {
 			i.eat(DIV)
 		}
-		result = &TreeNode{left: result, t: op, right: i.factor()}
+		result = &BinOpNode{left: result, token: op, right: i.factor()}
 	}
 	return result
 }
 
-func (i *Parser) expr() *TreeNode {
+func (i *Parser) expr() TreeNode {
 	result := i.term()
 
 	for i.currentToken._type == PLUS || i.currentToken._type == MINUS {
@@ -75,7 +75,7 @@ func (i *Parser) expr() *TreeNode {
 		if i.currentToken._type == MINUS {
 			i.eat(MINUS)
 		}
-		result = &TreeNode{left: result, t: op, right: i.term()}
+		result = &BinOpNode{left: result, token: op, right: i.term()}
 	}
 	return result
 }
