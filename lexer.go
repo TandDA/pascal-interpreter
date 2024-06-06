@@ -7,15 +7,26 @@ import (
 
 const (
 	_ = iota
-	PLUS  
-	MINUS  
-	DIV     
-	MUL     
-	LPAREN  
-	RPAREN  
-	INTEGER 
-	EOF 
+	PLUS
+	MINUS
+	DIV
+	MUL
+	LPAREN
+	RPAREN
+	INTEGER
+	EOF
+	BEGIN
+	END
+	DOT
+	ASSIGN
+	SEMI
+	ID
 )
+
+var RESERVED_KEYWORDS = map[string]Token{
+	"BEGIN": {BEGIN, "BEGIN"},
+	"END":   {END, "END"},
+}
 
 type Token struct {
 	_type int
@@ -41,10 +52,31 @@ func (l *Lexer) advance() {
 	l.currentChar = rune(l.text[l.pos])
 }
 
+func (l *Lexer) peek() rune {
+	peek_pos := l.pos + 1
+	if peek_pos >= len(l.text) {
+		return 0
+	}
+	return rune(l.text[peek_pos])
+}
+
+func (l *Lexer) _id() Token {
+	result := ""
+	for l.currentChar != 0 {
+		result += string(l.currentChar)
+		l.advance()
+	}
+	token, ok := RESERVED_KEYWORDS[result]
+	if !ok {
+		token = Token{ID, result}
+	}
+	return token
+}
+
 func (l *Lexer) integer() int {
 	temp := ""
 	for unicode.IsDigit(l.currentChar) {
-		temp+= string(l.currentChar)
+		temp += string(l.currentChar)
 		l.advance()
 	}
 	res, _ := strconv.Atoi(temp)
@@ -62,7 +94,21 @@ func (l *Lexer) getNextToken() Token {
 		if unicode.IsDigit(l.currentChar) {
 			return Token{INTEGER, l.integer()}
 		}
+		if unicode.IsLetter(l.currentChar) {
+			return l._id()
+		}
+		if l.currentChar == ':' && l.peek() == '=' {
+			l.advance()
+			l.advance()
+			return Token{ASSIGN, ":="}
+		}
 		switch l.currentChar {
+		case ';':
+			l.advance()
+			return Token{SEMI, "-"}
+		case '.':
+			l.advance()
+			return Token{DOT, "."}
 		case '-':
 			l.advance()
 			return Token{MINUS, "-"}
