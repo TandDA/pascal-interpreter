@@ -23,6 +23,63 @@ func (i *Parser) eat(_type int) {
 	panic("Syntax error")
 }
 
+func (i *Parser) program() TreeNode {
+	node := i.compoundStatement()
+	i.eat(DOT)
+	return node
+}
+
+func (i *Parser) compoundStatement() TreeNode {
+	i.eat(BEGIN)
+	nodes := i.statementList()
+	i.eat(END)
+
+	root := &CompoundNode{}
+	for _, node := range nodes {
+		root.children = append(root.children, node)
+	}
+	return root
+}
+
+func (i *Parser) statementList() []TreeNode {
+	node := i.statement()
+
+	result := []TreeNode{node}
+	for i.currentToken._type == SEMI {
+		i.eat(SEMI)
+		result = append(result, i.statement())
+	}
+	return result
+}
+
+func (i *Parser) statement() TreeNode {
+	var node TreeNode
+	if i.currentToken._type == BEGIN {
+		node = i.compoundStatement()
+	} else if i.currentToken._type == ID {
+		node = i.assignmentStatement()
+	} else {
+		node = i.empty()
+	}
+	return node
+}
+
+func (i *Parser) assignmentStatement() TreeNode {
+	left := i.variable()
+	token := i.currentToken
+	i.eat(ASSIGN)
+
+	right := i.expr()
+	return &AssignNode{left, right, token}
+}
+func (i *Parser) variable() TreeNode {
+	node := &VarNode{token: i.currentToken}
+	i.eat(ID)
+	return node
+}
+func (i *Parser) empty() TreeNode {
+	return &NoOpNode{}
+}
 func (i *Parser) factor() TreeNode {
 	if i.currentToken._type == PLUS {
 		tok := i.currentToken
@@ -44,6 +101,9 @@ func (i *Parser) factor() TreeNode {
 		node := i.expr()
 		i.eat(RPAREN)
 		return node
+	}
+	if i.currentToken._type == ID {
+		return i.variable()
 	}
 	panic("Syntax error")
 }
@@ -78,4 +138,12 @@ func (i *Parser) expr() TreeNode {
 		result = &BinOpNode{left: result, token: op, right: i.term()}
 	}
 	return result
+}
+
+func (i *Parser) parse() TreeNode {
+	node := i.program()
+	if i.currentToken._type != EOF {
+		panic("EOF error")
+	}
+	return node
 }

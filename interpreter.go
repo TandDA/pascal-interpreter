@@ -44,3 +44,19 @@ func (nv *NodeVisitor) VisitUnaryOp(n *UnaryOpNode) any {
 		return num
 	}
 }
+
+func (nv *NodeVisitor) VisitCompoundNode(n *CompoundNode) any {
+	return nil
+}
+
+func (nv *NodeVisitor) VisitAssignNode(n *AssignNode) any {
+	return nil
+}
+
+func (nv *NodeVisitor) VisitVarNode(n *VarNode) any {
+	return nil
+}
+
+func (nv *NodeVisitor) VisitNoOpNode(n *NoOpNode) any {
+	return NoOpNode{}
+}
