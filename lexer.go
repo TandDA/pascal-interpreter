@@ -6,18 +6,19 @@ import (
 )
 
 const (
-	PLUS    = "PLUS"
-	MINUS   = "MINUS"
-	DIV     = "DIV"
-	MUL     = "MUL"
-	LPAREN  = "LPAREN"
-	RPAREN  = "RPAREN"
-	INTEGER = "INTEGER"
-	EOF     = "EOF"
+	_ = iota
+	PLUS  
+	MINUS  
+	DIV     
+	MUL     
+	LPAREN  
+	RPAREN  
+	INTEGER 
+	EOF 
 )
 
 type Token struct {
-	_type string
+	_type int
 	val   any
 }
 

@@ -15,7 +15,7 @@ func NewParser(lxr *Lexer) *Parser {
 	return &Parser{l: lxr, currentToken: lxr.getNextToken()}
 }
 
-func (i *Parser) eat(_type string) {
+func (i *Parser) eat(_type int) {
 	if _type == i.currentToken._type {
 		i.currentToken = i.l.getNextToken()
 		return
