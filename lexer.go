@@ -2,6 +2,7 @@ package main
 
 import (
 	"strconv"
+	"strings"
 	"unicode"
 )
 
@@ -66,7 +67,7 @@ func (l *Lexer) _id() Token {
 		result += string(l.currentChar)
 		l.advance()
 	}
-	token, ok := RESERVED_KEYWORDS[result]
+	token, ok := RESERVED_KEYWORDS[strings.ToUpper(result)]
 	if !ok {
 		token = Token{ID, result}
 	}
