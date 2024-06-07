@@ -37,7 +37,7 @@ type (
 	}
 	VarNode struct {
 		token Token
-		value any
+		value string
 	}
 	NoOpNode struct {
 

@@ -1,21 +1,23 @@
 package main
 
 type Interpreter struct {
-	parser *Parser
+	parser      *Parser
+	globalScope map[string]int
 }
 
 func NewInterpreter(parser *Parser) *Interpreter {
-	return &Interpreter{parser: parser}
+	return &Interpreter{parser: parser, globalScope: make(map[string]int)}
 }
 
-func (i *Interpreter) interpret() int {
-	visitor := &NodeVisitor{}
-	return i.parser.expr().Accept(visitor).(int)
+func (i *Interpreter) interpret() any {
+	tree := i.parser.parse()
+	if tree == nil {
+		return 0
+	}
+	return tree.Accept(i)
 }
 
-type NodeVisitor struct{}
-
-func (nv *NodeVisitor) VisitBinOpNode(n *BinOpNode) any {
+func (nv *Interpreter) VisitBinOpNode(n *BinOpNode) any {
 	l := n.left.Accept(nv).(int)
 	r := n.right.Accept(nv).(int)
 	switch n.token._type {
@@ -31,11 +33,11 @@ func (nv *NodeVisitor) VisitBinOpNode(n *BinOpNode) any {
 	return nil
 }
 
-func (nv *NodeVisitor) VisitNumNode(n *NumNode) any {
+func (nv *Interpreter) VisitNumNode(n *NumNode) any {
 	return n.token.val.(int)
 }
 
-func (nv *NodeVisitor) VisitUnaryOp(n *UnaryOpNode) any {
+func (nv *Interpreter) VisitUnaryOp(n *UnaryOpNode) any {
 	op := n.token._type
 	num := n.expr.Accept(nv).(int)
 	if op == MINUS {
@@ -45,18 +47,28 @@ func (nv *NodeVisitor) VisitUnaryOp(n *UnaryOpNode) any {
 	}
 }
 
-func (nv *NodeVisitor) VisitCompoundNode(n *CompoundNode) any {
+func (nv *Interpreter) VisitCompoundNode(n *CompoundNode) any {
+	for _, child := range n.children {
+		child.Accept(nv)
+	}
 	return nil
 }
 
-func (nv *NodeVisitor) VisitAssignNode(n *AssignNode) any {
+func (nv *Interpreter) VisitAssignNode(n *AssignNode) any {
+	varName := n.left.(*VarNode).value
+	nv.globalScope[varName] = n.right.Accept(nv).(int)
 	return nil
 }
 
-func (nv *NodeVisitor) VisitVarNode(n *VarNode) any {
-	return nil
+func (nv *Interpreter) VisitVarNode(n *VarNode) any {
+	val, ok := nv.globalScope[n.value]
+	if ok {
+		return val
+	} else {
+		panic("Var " + n.value + " undefiend")
+	}
 }
 
-func (nv *NodeVisitor) VisitNoOpNode(n *NoOpNode) any {
+func (nv *Interpreter) VisitNoOpNode(n *NoOpNode) any {
 	return NoOpNode{}
 }

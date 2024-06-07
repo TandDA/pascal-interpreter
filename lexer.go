@@ -62,7 +62,7 @@ func (l *Lexer) peek() rune {
 
 func (l *Lexer) _id() Token {
 	result := ""
-	for l.currentChar != 0 {
+	for unicode.IsDigit(l.currentChar) || unicode.IsLetter(l.currentChar) {
 		result += string(l.currentChar)
 		l.advance()
 	}
@@ -85,8 +85,8 @@ func (l *Lexer) integer() int {
 
 func (l *Lexer) getNextToken() Token {
 	for l.currentChar != 0 {
-		if l.currentChar == ' ' {
-			for l.currentChar == ' ' {
+		if l.currentChar == ' ' || l.currentChar == '\n' || l.currentChar == '\t' {
+			for l.currentChar == ' ' || l.currentChar == '\n' || l.currentChar == '\t' {
 				l.advance()
 			}
 			continue
@@ -128,7 +128,7 @@ func (l *Lexer) getNextToken() Token {
 			l.advance()
 			return Token{RPAREN, ")"}
 		}
-		panic("Unrecognized token")
+		panic("Unrecognized token" + string(l.currentChar) + "aas")
 	}
 	return Token{EOF, nil}
 }

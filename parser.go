@@ -73,7 +73,7 @@ func (i *Parser) assignmentStatement() TreeNode {
 	return &AssignNode{left, right, token}
 }
 func (i *Parser) variable() TreeNode {
-	node := &VarNode{token: i.currentToken}
+	node := &VarNode{token: i.currentToken, value: i.currentToken.val.(string)}
 	i.eat(ID)
 	return node
 }
