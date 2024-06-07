@@ -8,8 +8,8 @@ func main() {
 	    begin
 	        number := 2;
 	        a := number;
-	        b := 10 * a + 10 * number div 4;
-	        c := a - - b
+	        _b := 10 * a + 10 * number div 4;
+	        c := a - - _b
 	    END;
 	    x := 11;
 	 end.

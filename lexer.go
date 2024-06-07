@@ -64,7 +64,7 @@ func (l *Lexer) peek() rune {
 
 func (l *Lexer) _id() Token {
 	result := ""
-	for unicode.IsDigit(l.currentChar) || unicode.IsLetter(l.currentChar) {
+	for unicode.IsDigit(l.currentChar) || unicode.IsLetter(l.currentChar) || l.currentChar == '_' {
 		result += string(l.currentChar)
 		l.advance()
 	}
@@ -96,7 +96,7 @@ func (l *Lexer) getNextToken() Token {
 		if unicode.IsDigit(l.currentChar) {
 			return Token{INTEGER, l.integer()}
 		}
-		if unicode.IsLetter(l.currentChar) {
+		if unicode.IsLetter(l.currentChar) || l.currentChar == '_' {
 			return l._id()
 		}
 		if l.currentChar == ':' && l.peek() == '=' {
