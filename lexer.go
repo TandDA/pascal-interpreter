@@ -27,6 +27,7 @@ const (
 var RESERVED_KEYWORDS = map[string]Token{
 	"BEGIN": {BEGIN, "BEGIN"},
 	"END":   {END, "END"},
+	"DIV":   {DIV, "/"},
 }
 
 type Token struct {
@@ -119,9 +120,6 @@ func (l *Lexer) getNextToken() Token {
 		case '*':
 			l.advance()
 			return Token{MUL, "*"}
-		case '/':
-			l.advance()
-			return Token{DIV, "/"}
 		case '(':
 			l.advance()
 			return Token{LPAREN, "("}
