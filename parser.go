@@ -24,9 +24,12 @@ func (i *Parser) eat(_type int) {
 }
 
 func (i *Parser) program() TreeNode {
-	node := i.compoundStatement()
+	i.eat(PROGRAM)
+	programName := i.variable().(*VarNode).value
+	i.eat(SEMI)
+	blockNode := i.block()
 	i.eat(DOT)
-	return node
+	return &ProgramNode{name: programName, block: blockNode}
 }
 
 func (i *Parser) compoundStatement() TreeNode {
@@ -80,45 +83,92 @@ func (i *Parser) variable() TreeNode {
 func (i *Parser) empty() TreeNode {
 	return &NoOpNode{}
 }
+
+func (i *Parser) block() TreeNode {
+	declarationNodes := i.declarations()
+	compoundStatementNodes := i.compoundStatement()
+	return &BlockNode{declarations: declarationNodes, compoundStatement: compoundStatementNodes}
+}
+
+func (i *Parser) declarations() []TreeNode {
+	declarations := []TreeNode{}
+	if i.currentToken._type == VAR {
+		i.eat(VAR)
+		for i.currentToken._type == ID {
+			varDecl := i.variableDeclaration()
+			declarations = append(declarations, varDecl...)
+			i.eat(SEMI)
+		}
+	}
+	return declarations
+}
+
+func (i *Parser) variableDeclaration() []TreeNode {
+	varNodes := []VarNode{VarNode{token: i.currentToken}}
+	i.eat(ID)
+
+	for i.currentToken._type == COMMA {
+		i.eat(COMMA)
+		varNodes = append(varNodes, VarNode{token: i.currentToken})
+		i.eat(ID)
+	}
+
+	i.eat(COLON)
+	typeNode := i.typeSpec()
+	varDeclarations := []TreeNode{}
+
+	for _, varNode := range varNodes {
+		varDeclarations = append(varDeclarations, &VarDeclNode{varNode: &varNode, typeNode: typeNode})
+	}
+	return varDeclarations
+
+}
+func (i *Parser) typeSpec() TreeNode {
+	token := i.currentToken
+	if token._type == INTEGER {
+		i.eat(INTEGER)
+	} else {
+		i.eat(REAL)
+	}
+	return &TypeNode{token: token}
+}
 func (i *Parser) factor() TreeNode {
 	if i.currentToken._type == PLUS {
 		tok := i.currentToken
 		i.eat(PLUS)
 		return &UnaryOpNode{token: tok, expr: i.factor()}
-	}
-	if i.currentToken._type == MINUS {
+	} else if i.currentToken._type == MINUS {
 		tok := i.currentToken
 		i.eat(MINUS)
 		return &UnaryOpNode{token: tok, expr: i.factor()}
-	}
-	if i.currentToken._type == INTEGER {
+	} else if i.currentToken._type == INTEGER_CONST {
 		tok := i.currentToken
-		i.eat(INTEGER)
+		i.eat(INTEGER_CONST)
 		return &NumNode{token: tok}
-	}
-	if i.currentToken._type == LPAREN {
+	} else if i.currentToken._type == REAL_CONST {
+		tok := i.currentToken
+		i.eat(REAL_CONST)
+		return &NumNode{token: tok}
+	} else if i.currentToken._type == LPAREN {
 		i.eat(LPAREN)
 		node := i.expr()
 		i.eat(RPAREN)
 		return node
-	}
-	if i.currentToken._type == ID {
+	} else if i.currentToken._type == ID {
+		return i.variable()
+	} else {
 		return i.variable()
 	}
-	panic("Syntax error")
 }
 
 func (i *Parser) term() TreeNode {
 	result := i.factor()
 
-	for i.currentToken._type == MUL || i.currentToken._type == DIV {
+	for i.currentToken._type == MUL || 
+	i.currentToken._type == INTEGER_DIV || 
+	i.currentToken._type == FLOAT_DIV {
 		op := i.currentToken
-		if i.currentToken._type == MUL {
-			i.eat(MUL)
-		}
-		if i.currentToken._type == DIV {
-			i.eat(DIV)
-		}
+		i.eat(op._type)
 		result = &BinOpNode{left: result, token: op, right: i.factor()}
 	}
 	return result

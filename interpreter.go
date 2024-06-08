@@ -18,12 +18,14 @@ func (i *Interpreter) interpret() any {
 }
 
 func (nv *Interpreter) VisitBinOpNode(n *BinOpNode) any {
-	l := n.left.Accept(nv).(int)
-	r := n.right.Accept(nv).(int)
+	l := n.left.Accept(nv).(float64)
+	r := n.right.Accept(nv).(float64)
 	switch n.token._type {
 	case MUL:
 		return l * r
-	case DIV:
+	case INTEGER_DIV:
+		return float64(int(l / r))
+	case FLOAT_DIV:
 		return l / r
 	case PLUS:
 		return l + r
@@ -71,4 +73,23 @@ func (nv *Interpreter) VisitVarNode(n *VarNode) any {
 
 func (nv *Interpreter) VisitNoOpNode(n *NoOpNode) any {
 	return NoOpNode{}
+}
+
+func (nv *Interpreter) VisitProgramNode(n *ProgramNode) any {
+	n.block.Accept(nv)
+	return nil
+}
+func (nv *Interpreter) VisitBlockNode(n *BlockNode) any {
+	for _, declaration := range n.declarations {
+		declaration.Accept(nv)
+	}
+	n.compoundStatement.Accept(nv)
+	return nil
+}
+func (nv *Interpreter) VisitVarDeclNode(n *VarDeclNode) any {
+	return nil
+}
+
+func (nv *Interpreter) VisitTypeNode(n *TypeNode) any {
+	return nil
 }

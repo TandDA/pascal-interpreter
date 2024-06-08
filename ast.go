@@ -12,6 +12,10 @@ type Visitor interface {
 	VisitAssignNode(n *AssignNode) any
 	VisitVarNode(n *VarNode) any
 	VisitNoOpNode(n *NoOpNode) any
+	VisitTypeNode(n *TypeNode) any
+	VisitVarDeclNode(n *VarDeclNode) any
+	VisitBlockNode(n *BlockNode) any
+	VisitProgramNode(n *ProgramNode) any
 }
 
 type (
@@ -40,7 +44,22 @@ type (
 		value string
 	}
 	NoOpNode struct {
-
+	}
+	TypeNode struct {
+		token Token
+		val   string
+	}
+	VarDeclNode struct {
+		varNode  TreeNode
+		typeNode TreeNode
+	}
+	BlockNode struct {
+		declarations      []TreeNode
+		compoundStatement TreeNode
+	}
+	ProgramNode struct {
+		name  string
+		block TreeNode
 	}
 )
 
@@ -65,4 +84,15 @@ func (n *VarNode) Accept(visitor Visitor) any {
 func (n *NoOpNode) Accept(visitor Visitor) any {
 	return visitor.VisitNoOpNode(n)
 }
-
+func (n *TypeNode) Accept(visitor Visitor) any {
+	return visitor.VisitTypeNode(n)
+}
+func (n *VarDeclNode) Accept(visitor Visitor) any {
+	return visitor.VisitVarDeclNode(n)
+}
+func (n *BlockNode) Accept(visitor Visitor) any {
+	return visitor.VisitBlockNode(n)
+}
+func (n *ProgramNode) Accept(visitor Visitor) any {
+	return visitor.VisitProgramNode(n)
+}
