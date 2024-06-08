@@ -119,7 +119,7 @@ func (l *Lexer) number() Token {
 		return Token{REAL_CONST, res}
 	}
 	res, _ := strconv.Atoi(temp)
-	return Token{INTEGER_CONST, res}
+	return Token{INTEGER_CONST, float64(res)}
 }
 
 func (l *Lexer) getNextToken() Token {

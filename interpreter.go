@@ -2,11 +2,11 @@ package main
 
 type Interpreter struct {
 	parser      *Parser
-	globalScope map[string]int
+	globalScope map[string]float64
 }
 
 func NewInterpreter(parser *Parser) *Interpreter {
-	return &Interpreter{parser: parser, globalScope: make(map[string]int)}
+	return &Interpreter{parser: parser, globalScope: make(map[string]float64)}
 }
 
 func (i *Interpreter) interpret() any {
@@ -36,12 +36,12 @@ func (nv *Interpreter) VisitBinOpNode(n *BinOpNode) any {
 }
 
 func (nv *Interpreter) VisitNumNode(n *NumNode) any {
-	return n.token.val.(int)
+	return n.token.val.(float64)
 }
 
 func (nv *Interpreter) VisitUnaryOp(n *UnaryOpNode) any {
 	op := n.token._type
-	num := n.expr.Accept(nv).(int)
+	num := n.expr.Accept(nv).(float64)
 	if op == MINUS {
 		return -num
 	} else {
@@ -58,7 +58,7 @@ func (nv *Interpreter) VisitCompoundNode(n *CompoundNode) any {
 
 func (nv *Interpreter) VisitAssignNode(n *AssignNode) any {
 	varName := n.left.(*VarNode).value
-	nv.globalScope[varName] = n.right.Accept(nv).(int)
+	nv.globalScope[varName] = n.right.Accept(nv).(float64)
 	return nil
 }
 
