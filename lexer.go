@@ -7,27 +7,40 @@ import (
 )
 
 const (
-	_ = iota
-	PLUS
-	MINUS
-	DIV
-	MUL
-	LPAREN
-	RPAREN
-	INTEGER
-	EOF
-	BEGIN
-	END
-	DOT
-	ASSIGN
-	SEMI
-	ID
+	_             = iota
+	PLUS          // +
+	MINUS         // -
+	DIV           // /
+	MUL           // *
+	LPAREN        // (
+	RPAREN        // )
+	INTEGER       // variable type
+	EOF           // end of file
+	BEGIN         // reserved keyword
+	END           // reserved keyword
+	DOT           // .
+	ASSIGN        // :=
+	SEMI          // ;
+	ID            // variable token type
+	PROGRAM       // reserved keyword
+	VAR           // reserved keyword
+	COLON         // :
+	COMMA         // ,
+	REAL          // variable type
+	INTEGER_CONST // 4,3, etc
+	REAL_CONST    // 3.14 etc
+	INTEGER_DIV   // for integer division (DIV keyword)
+	FLOAT_DIV     // for float division ( forward slash / )
 )
 
 var RESERVED_KEYWORDS = map[string]Token{
-	"BEGIN": {BEGIN, "BEGIN"},
-	"END":   {END, "END"},
-	"DIV":   {DIV, "/"},
+	"PROGRAM": {PROGRAM, "PROGRAM"},
+	"VAR":     {VAR, "VAR"},
+	"DIV":     {INTEGER_DIV, "DIV"},
+	"INTEGER": {INTEGER, "INTEGER"},
+	"REAL":    {REAL, "REAL"},
+	"BEGIN":   {BEGIN, "BEGIN"},
+	"END":     {END, "END"},
 }
 
 type Token struct {
@@ -75,26 +88,48 @@ func (l *Lexer) _id() Token {
 	return token
 }
 
-func (l *Lexer) integer() int {
+func (l *Lexer) skipWhitespaces() {
+	for l.currentChar == ' ' || l.currentChar == '\n' || l.currentChar == '\t' {
+		l.advance()
+	}
+}
+
+func (l *Lexer) skipComment() {
+	for l.currentChar != '}' {
+		l.advance()
+	}
+	l.advance()
+}
+
+func (l *Lexer) number() Token {
 	temp := ""
 	for unicode.IsDigit(l.currentChar) {
 		temp += string(l.currentChar)
 		l.advance()
 	}
+	if l.currentChar == '.' {
+		temp += "."
+		l.advance()
+
+		for unicode.IsDigit(l.currentChar) {
+			temp += string(l.currentChar)
+			l.advance()
+		}
+		res, _ := strconv.ParseFloat(temp, 64)
+		return Token{REAL_CONST, res}
+	}
 	res, _ := strconv.Atoi(temp)
-	return res
+	return Token{INTEGER_CONST, res}
 }
 
 func (l *Lexer) getNextToken() Token {
 	for l.currentChar != 0 {
 		if l.currentChar == ' ' || l.currentChar == '\n' || l.currentChar == '\t' {
-			for l.currentChar == ' ' || l.currentChar == '\n' || l.currentChar == '\t' {
-				l.advance()
-			}
+			l.skipWhitespaces()
 			continue
 		}
 		if unicode.IsDigit(l.currentChar) {
-			return Token{INTEGER, l.integer()}
+			return l.number()
 		}
 		if unicode.IsLetter(l.currentChar) || l.currentChar == '_' {
 			return l._id()
@@ -126,8 +161,20 @@ func (l *Lexer) getNextToken() Token {
 		case ')':
 			l.advance()
 			return Token{RPAREN, ")"}
+		case '{':
+			l.skipComment()
+			continue
+		case ':':
+			l.advance()
+			return Token{COLON, ':'}
+		case ',':
+			l.advance()
+			return Token{COMMA, ','}
+		case '/':
+			l.advance()
+			return Token{FLOAT_DIV, '/'}
 		}
-		panic("Unrecognized token" + string(l.currentChar) + "aas")
+		panic("Unrecognized token" + string(l.currentChar))
 	}
 	return Token{EOF, nil}
 }
