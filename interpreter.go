@@ -11,6 +11,8 @@ func NewInterpreter(parser *Parser) *Interpreter {
 
 func (i *Interpreter) interpret() any {
 	tree := i.parser.parse()
+	sVisitor := NewSymbolTableVisitor()
+	tree.Accept(sVisitor)
 	if tree == nil {
 		return 0
 	}

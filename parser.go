@@ -117,8 +117,8 @@ func (i *Parser) variableDeclaration() []TreeNode {
 	typeNode := i.typeSpec()
 	varDeclarations := []TreeNode{}
 
-	for _, varNode := range varNodes {
-		varDeclarations = append(varDeclarations, &VarDeclNode{varNode: &varNode, typeNode: typeNode})
+	for i, _ := range varNodes {
+		varDeclarations = append(varDeclarations, &VarDeclNode{varNode: &varNodes[i], typeNode: typeNode})
 	}
 	return varDeclarations
 
@@ -164,9 +164,9 @@ func (i *Parser) factor() TreeNode {
 func (i *Parser) term() TreeNode {
 	result := i.factor()
 
-	for i.currentToken._type == MUL || 
-	i.currentToken._type == INTEGER_DIV || 
-	i.currentToken._type == FLOAT_DIV {
+	for i.currentToken._type == MUL ||
+		i.currentToken._type == INTEGER_DIV ||
+		i.currentToken._type == FLOAT_DIV {
 		op := i.currentToken
 		i.eat(op._type)
 		result = &BinOpNode{left: result, token: op, right: i.factor()}
