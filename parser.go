@@ -100,6 +100,17 @@ func (i *Parser) declarations() []TreeNode {
 			i.eat(SEMI)
 		}
 	}
+
+	for i.currentToken._type == PROCEDURE {
+		i.eat(PROCEDURE)
+		procName := i.currentToken.val.(string)
+		i.eat(ID)
+		i.eat(SEMI)
+		blockNode := i.block()
+		procDel := ProcedureDeclNode{procName: procName, blockNode: blockNode}
+		declarations = append(declarations, &procDel)
+		i.eat(SEMI)
+	}
 	return declarations
 }
 

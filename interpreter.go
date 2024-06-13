@@ -95,3 +95,6 @@ func (nv *Interpreter) VisitVarDeclNode(n *VarDeclNode) any {
 func (nv *Interpreter) VisitTypeNode(n *TypeNode) any {
 	return nil
 }
+func (nv *Interpreter) VisitProcedureDeclNode(n *ProcedureDeclNode) any {
+	return nil
+}

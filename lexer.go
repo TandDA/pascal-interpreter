@@ -31,6 +31,7 @@ const (
 	REAL_CONST    // 3.14 etc
 	INTEGER_DIV   // for integer division (DIV keyword)
 	FLOAT_DIV     // for float division ( forward slash / )
+	PROCEDURE     // reserved keywoed
 )
 
 var RESERVED_KEYWORDS = map[string]Token{
@@ -41,6 +42,7 @@ var RESERVED_KEYWORDS = map[string]Token{
 	"REAL":    {REAL, "REAL"},
 	"BEGIN":   {BEGIN, "BEGIN"},
 	"END":     {END, "END"},
+	"PROCEDURE" : {PROCEDURE, "PROCEDURE"},
 }
 
 type Token struct {

@@ -16,6 +16,7 @@ type Visitor interface {
 	VisitVarDeclNode(n *VarDeclNode) any
 	VisitBlockNode(n *BlockNode) any
 	VisitProgramNode(n *ProgramNode) any
+	VisitProcedureDeclNode(n *ProcedureDeclNode) any
 }
 
 type (
@@ -61,6 +62,10 @@ type (
 		name  string
 		block TreeNode
 	}
+	ProcedureDeclNode struct {
+		procName string
+		blockNode TreeNode
+	}
 )
 
 func (n *BinOpNode) Accept(visitor Visitor) any {
@@ -95,4 +100,7 @@ func (n *BlockNode) Accept(visitor Visitor) any {
 }
 func (n *ProgramNode) Accept(visitor Visitor) any {
 	return visitor.VisitProgramNode(n)
+}
+func (n *ProcedureDeclNode) Accept(visitor Visitor) any {
+	return visitor.VisitProcedureDeclNode(n)
 }

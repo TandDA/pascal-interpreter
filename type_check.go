@@ -84,3 +84,7 @@ func (s SymbolTableVisitor) VisitProgramNode(n *ProgramNode) any {
 	n.block.Accept(s)
 	return nil
 }
+
+func (s SymbolTableVisitor) VisitProcedureDeclNode(n *ProcedureDeclNode) any {
+	return nil
+}
